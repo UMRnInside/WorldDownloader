@@ -144,6 +144,7 @@ public class WDLPluginChannels {
 	 * if the plugin does NOT send it, it does not support permission requests.
 	 */
 	private static boolean canRequestPermissions = false;
+	private static boolean canBypassPermissionChecks = true;
 
 	/**
 	 * Message to display when requesting.  If empty, nothing
@@ -670,6 +671,9 @@ public class WDLPluginChannels {
 		sendInitPacket(Minecraft.getInstance().getConnection(), state);
 	}
 	private static void sendInitPacket(NetHandlerPlayClient nhpc, String state) {
+        // We have no channels
+        if (canBypassPermissionChecks)
+            return;
 		assert nhpc != null : "Unexpected null nhpc: state=" + state + ", chans=" + REGISTERED_CHANNELS;
 
 		final String channel;
@@ -740,6 +744,9 @@ public class WDLPluginChannels {
 	}
 
 	private static void registerChannels(NetHandlerPlayClient nhpc, byte[] bytes) {
+        // Never!
+        if (canBypassPermissionChecks)
+            return;
 		String existing = LOGGER.isDebugEnabled() ? REGISTERED_CHANNELS.toString() : null;
 
 		String str = new String(bytes, StandardCharsets.UTF_8);
@@ -760,6 +767,9 @@ public class WDLPluginChannels {
 	}
 
 	private static void unregisterChannels(NetHandlerPlayClient nhpc, byte[] bytes) {
+        // Never
+        if (canBypassPermissionChecks)
+            return;
 		String existing = LOGGER.isDebugEnabled() ? REGISTERED_CHANNELS.toString() : null;
 
 		String str = new String(bytes, StandardCharsets.UTF_8);
@@ -774,6 +784,8 @@ public class WDLPluginChannels {
 	}
 
 	private static void handleControlPacket(byte[] bytes) {
+        if (canBypassPermissionChecks)
+            return;
 		try {
 			ByteArrayDataInput input = ByteStreams.newDataInput(bytes);
 
